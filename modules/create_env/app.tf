@@ -26,7 +26,6 @@ resource "openstack_networking_port_v2" "port_app" {
 resource "openstack_blockstorage_volume_v3" "volume_app" {
   name                 = "volume-for-app-server-${count.index + 1}"
   count                = "${var.app_count}"
-  name                 = "volume-for-app-server"
   size                 = var.hdd_size
   image_id             = data.openstack_images_image_v2.image_app.id
   volume_type          = var.volume_type
