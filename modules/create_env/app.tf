@@ -3,7 +3,7 @@
 ###################################
 data "openstack_images_image_v2" "image_app" {
   most_recent = true
-  visibility  = "${var.image_visibility_type}"
+  visibility  = var.image_visibility_type
   tag         = "app-consul"
 }
 
@@ -12,7 +12,7 @@ data "openstack_images_image_v2" "image_app" {
 ###################################
 resource "openstack_networking_port_v2" "port_app" {
   name       = "app-${count.index + 1}-eth0"
-  count      = "${var.app_count}"
+  count      = var.app_count
   network_id = openstack_networking_network_v2.network_1.id
 
   fixed_ip {
@@ -25,7 +25,7 @@ resource "openstack_networking_port_v2" "port_app" {
 ###################################
 resource "openstack_blockstorage_volume_v3" "volume_app" {
   name                 = "volume-for-app-server-${count.index + 1}"
-  count                = "${var.app_count}"
+  count                = var.app_count
   size                 = var.hdd_size
   image_id             = data.openstack_images_image_v2.image_app.id
   volume_type          = var.volume_type
@@ -38,17 +38,17 @@ resource "openstack_blockstorage_volume_v3" "volume_app" {
 }
 resource "openstack_compute_instance_v2" "app" {
   name              = "app-${count.index + 1}"
-  count             = "${var.app_count}"
-  flavor_id         = "${openstack_compute_flavor_v2.flavor_1.id}"
-  key_pair          = "${openstack_compute_keypair_v2.terraform_key.id}"
-  availability_zone = "${var.az_zone}"
+  count             = var.app_count
+  flavor_id         = openstack_compute_flavor_v2.flavor_1.id
+  key_pair          = openstack_compute_keypair_v2.terraform_key.id
+  availability_zone = var.az_zone
 
   network {
-    port = "${openstack_networking_port_v2.port_app[count.index].id}"
+    port = openstack_networking_port_v2.port_app[count.index].id
   }
 
   block_device {
-    uuid             = "${openstack_blockstorage_volume_v3.volume_app[count.index].id}"
+    uuid             = openstack_blockstorage_volume_v3.volume_app[count.index].id
     source_type      = "volume"
     destination_type = "volume"
     boot_index       = 0
@@ -82,11 +82,11 @@ resource "openstack_compute_instance_v2" "app" {
     connection {
       type  = "ssh"
       // host  = "${openstack_networking_floatingip_v2.floatingip_app.address}"
-      host  = "${self.access_ip_v4}"
+      host  = self.access_ip_v4
       user  = "root"
-      private_key = "${file("~/.ssh/id_rsa")}"
+      private_key = file("~/.ssh/id_rsa")
       # agent = true
-      bastion_host = "${openstack_networking_floatingip_v2.floatingip_db.address}"
+      bastion_host = openstack_networking_floatingip_v2.floatingip_db.address
       bastion_user = "root"
     }
   }
@@ -98,11 +98,11 @@ resource "openstack_compute_instance_v2" "app" {
 
     connection {
       type = "ssh"
-      host  = "${self.access_ip_v4}"
+      host  = self.access_ip_v4
       user  = "root"
-      private_key = "${file("~/.ssh/id_rsa")}"
+      private_key = file("~/.ssh/id_rsa")
       # agent = true
-      bastion_host = "${openstack_networking_floatingip_v2.floatingip_db.address}"
+      bastion_host = openstack_networking_floatingip_v2.floatingip_db.address
       bastion_user = "root"
     }
   }

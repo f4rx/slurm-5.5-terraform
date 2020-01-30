@@ -17,12 +17,10 @@ variable "project_id" {}
 variable "hdd_size" {
   default = "5"
 }
-
 variable "app_count" {
   default = 1
 }
 variable "image_visibility_type" {
   default = "private"
 }
-
 

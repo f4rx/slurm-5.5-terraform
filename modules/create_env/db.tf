@@ -3,7 +3,7 @@
 ###################################
 data "openstack_images_image_v2" "image_db" {
   most_recent = true
-  visibility  = "${var.image_visibility_type}"
+  visibility  = var.image_visibility_type
   tag         = "db-consul"
 }
 
@@ -71,9 +71,9 @@ resource "openstack_compute_instance_v2" "db" {
 
     connection {
       type = "ssh"
-      host  = "${openstack_networking_floatingip_v2.floatingip_db.address}"
+      host  = openstack_networking_floatingip_v2.floatingip_db.address
       user  = "root"
-      private_key = "${file("~/.ssh/id_rsa")}"
+      private_key = file("~/.ssh/id_rsa")
       # agent = true
     }
   }
@@ -91,10 +91,9 @@ resource "openstack_networking_floatingip_v2" "floatingip_db" {
 # Link floating IP to internal IP
 ###################################
 resource "openstack_networking_floatingip_associate_v2" "association_1" {
-  port_id     = "${openstack_networking_port_v2.port_db.id}"
-  floating_ip = "${openstack_networking_floatingip_v2.floatingip_db.address}"
+  port_id     = openstack_networking_port_v2.port_db.id
+  floating_ip = openstack_networking_floatingip_v2.floatingip_db.address
 }
-
 
 output "server_external_ip" {
   value = openstack_networking_floatingip_v2.floatingip_db.address
